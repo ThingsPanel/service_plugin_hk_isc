@@ -145,7 +145,7 @@ func ExampleGetCameraResources() {
 	}
 	config := model.Voucher{
 		Host:      "218.6.43.28:442",
-		AppKey:    "e82i01",
+		AppKey:    "26538179",
 		AppSecret: "hdJivxLm2SpTw1qhkGL1",
 	}
 

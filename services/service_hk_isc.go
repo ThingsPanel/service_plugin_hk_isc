@@ -8,7 +8,7 @@ func NewHkIsc() *HkIsc {
 }
 
 func (h *HkIsc) Run() error {
-	//ExampleGetCameraResources()
+	ExampleGetCameraResources()
 
 	//ExampleSearchEncodeDevices()
 	return nil
