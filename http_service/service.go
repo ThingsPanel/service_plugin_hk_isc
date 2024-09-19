@@ -163,7 +163,7 @@ func OnGetDeviceList(w http.ResponseWriter, r *http.Request) {
 		pageSize = 10 // 默认页面大小
 	}
 
-	pageNo, err := strconv.Atoi(query.Get("page_no"))
+	pageNo, err := strconv.Atoi(query.Get("page"))
 	if err != nil || pageNo <= 0 {
 		pageNo = 1 // 默认页码
 	}
