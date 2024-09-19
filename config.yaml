@@ -7,7 +7,7 @@ mqtt:
   username: root
   password: root
   telemetry_topic_to_publish: devices/attributes #发送遥测数据主题
-  topic_to_subscribe: plugin/hk_isc/#
+  topic_to_subscribe: service/hk_isc/#
   command_topic_to_subscribe: devices/command
   status_topic: device/status
   qos: 0 #qos

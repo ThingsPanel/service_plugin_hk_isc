@@ -26,6 +26,8 @@ func start() {
 	var handler tpprotocolsdkgo.Handler = tpprotocolsdkgo.Handler{
 		OnDisconnectDevice: OnDisconnectDevice,
 		OnGetForm:          OnGetForm,
+		OnNotifyEvent:      OnNotifyEvent,
+		GetDeviceList:      OnGetDeviceList,
 	}
 	addr := viper.GetString("http_server.address")
 	log.Println("http服务启动：", addr)
