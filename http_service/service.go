@@ -123,7 +123,7 @@ func OnNotifyEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	logrus.Info("notifyEvent", notifyEvent)
-	if notifyEvent.MessageType != "1" {
+	if notifyEvent.MessageType == "1" {
 		type NotifyEventData struct {
 			ServiceAccessID string `json:"service_access_id"`
 		}

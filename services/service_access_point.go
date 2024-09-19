@@ -180,3 +180,44 @@ func ParseVoucher(voucher string) (model.Voucher, error) {
 	}
 	return parsedVoucher, nil
 }
+
+// 更新服务点信息
+func UpdateServiceAccessPoint(serviceAccessID string) {
+	logrus.Info("更新服务接入点信息")
+	serviceAccessPoint, err := httpclient.GetServiceAccessPoint(serviceAccessID)
+	if err != nil {
+		logrus.Errorf("Failed to get ServiceAccessPoint %s: %v", serviceAccessID, err)
+		return
+	}
+	if serviceAccessPoint == nil {
+		logrus.Errorf("Failed to get ServiceAccessPoint %s: %v", serviceAccessID, serviceAccessPoint)
+		return
+	}
+	if serviceAccessPoint.Code != 200 {
+		logrus.Errorf("Failed to get ServiceAccessPoint %s: %v", serviceAccessID, serviceAccessPoint)
+		return
+	}
+
+	mapMutex.Lock()
+	defer mapMutex.Unlock()
+
+	if sap, exists := ServiceAccessPointMap[serviceAccessID]; exists {
+		sap.Data = &serviceAccessPoint.Data
+		sap.Stop()
+		if err := sap.Start(); err != nil {
+			logrus.Errorf("Failed to start ServiceAccessPoint %s: %v", serviceAccessID, err)
+		}
+	} else {
+		ctx, cancel := context.WithCancel(context.Background())
+		sap := &ServiceAccessPoint{
+			Data:     &serviceAccessPoint.Data,
+			ctx:      ctx,
+			cancel:   cancel,
+			stopChan: make(chan struct{}),
+		}
+		ServiceAccessPointMap[serviceAccessID] = sap
+		if err := sap.Start(); err != nil {
+			logrus.Errorf("Failed to start ServiceAccessPoint %s: %v", serviceAccessID, err)
+		}
+	}
+}
