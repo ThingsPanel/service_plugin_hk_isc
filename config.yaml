@@ -1,0 +1,24 @@
+server:
+  address: 0.0.0.0:5250 #服务地址
+  identifier: hk_isc # 服务唯一标识符注册插件时候的服务标识符字段
+
+mqtt:
+  broker: 47.92.253.145:1883 #mqtt服务端地址
+  username: root
+  password: root
+  telemetry_topic_to_publish: devices/attributes #发送遥测数据主题
+  topic_to_subscribe: plugin/hk_isc/#
+  command_topic_to_subscribe: devices/command
+  status_topic: device/status
+  qos: 0 #qos
+
+http_server:
+  address: 0.0.0.0:5251 #http服务地址
+
+thingspanel:
+  address: http://47.92.253.145:9999 #thingspanel服务地址
+
+
+log: 
+  # 日志级别 debug, info, warn, error, fatal, panic
+  level: debug
