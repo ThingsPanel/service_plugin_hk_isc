@@ -7,6 +7,7 @@ import (
 
 	tpprotocolsdkgo "github.com/ThingsPanel/tp-protocol-sdk-go"
 	"github.com/ThingsPanel/tp-protocol-sdk-go/api"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -68,6 +69,22 @@ func GetServiceAccessPoint(serviceAccessPointID string) (*api.ServiceAccessRespo
 	response, err := client.API.GetServiceAccess(ServiceAccessPointReq)
 	if err != nil {
 		return nil, fmt.Errorf("获取服务接入点失败: %v", err)
+	}
+	return response, nil
+}
+
+// 获取服务接入点列表
+func GetServiceAccessList() (*api.ServiceAccessListResponseData, error) {
+	identifier := viper.GetString("server.identifier")
+	ServiceAccessListReq := api.ServiceAccessListRequest{
+		ServiceIdentifier: identifier,
+	}
+	logrus.Info("获取服务接入点列表:", ServiceAccessListReq)
+
+	response, err := client.API.GetServiceAccessList(ServiceAccessListReq)
+	if err != nil {
+		logrus.Error(err)
+		return nil, err
 	}
 	return response, nil
 }

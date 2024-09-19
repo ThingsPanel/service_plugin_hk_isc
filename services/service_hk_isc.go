@@ -8,7 +8,11 @@ func NewHkIsc() *HkIsc {
 }
 
 func (h *HkIsc) Run() error {
-	ExampleGetCameraResources()
+	_, err := GetServiceAccessPointMap()
+	if err != nil {
+		return err
+	}
+	//ExampleGetCameraResources()
 
 	//ExampleSearchEncodeDevices()
 	return nil

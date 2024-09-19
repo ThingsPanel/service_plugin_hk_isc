@@ -144,9 +144,9 @@ func ExampleGetCameraResources() {
 		PageSize: 2,
 	}
 	config := model.Voucher{
-		Host:      "218.6.43.28:442",
-		AppKey:    "26538179",
-		AppSecret: "hdJivxLm2SpTw1qhkGL1",
+		Host:      "127.0.0.1:442",
+		AppKey:    "xxx",
+		AppSecret: "xxxxx",
 	}
 
 	response, err := GetCameraResources(request, config)

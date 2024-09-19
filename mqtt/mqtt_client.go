@@ -3,6 +3,8 @@ package mqtt
 import (
 	"encoding/json"
 	"log"
+	"strconv"
+	"time"
 
 	tpprotocolsdkgo "github.com/ThingsPanel/tp-protocol-sdk-go"
 	"github.com/sirupsen/logrus"
@@ -29,6 +31,18 @@ func InitClient() {
 type MqttPayload struct {
 	DeviceID string `json:"device_id"`
 	Values   []byte `json:"values"`
+}
+
+// 获取消息id
+func GetMessageID() string {
+	// 获取当前Unix时间戳
+	timestamp := time.Now().Unix()
+	// 将时间戳转换为字符串
+	timestampStr := strconv.FormatInt(timestamp, 10)
+	// 截取后七位
+	messageID := timestampStr[len(timestampStr)-7:]
+
+	return messageID
 }
 
 // 组装payload{"device_id":device_id,"values":{key:value...}}
@@ -96,6 +110,34 @@ func PublishCommandResponse(deviceID string, messageID string, data map[string]i
 		return err
 	}
 	logrus.Debug("命令响应主题:", topic)
+	logrus.Debug("消息内容:", string(payload))
+	logrus.Debug("\n==>tp 发送消息成功:", string(newMsgJson))
+
+	return nil
+}
+
+// 发布属性消息
+func PublishAttributes(deviceID string, data map[string]interface{}) error {
+	topic := viper.GetString("mqtt.attributes_topic_to_publish") + GetMessageID()
+	qos := viper.GetUint("mqtt.qos")
+	// map转json
+	payload, err := json.Marshal(data)
+	if err != nil {
+		logrus.Warn("map转json失败:", err)
+		return err
+	}
+	// 组装payload
+	newMsgJson, err := AssemblePayload(deviceID, payload)
+	if err != nil {
+		logrus.Warn("组装payload失败:", err)
+		return err
+	}
+	err = MqttClient.Publish(topic, string(newMsgJson), uint8(qos))
+	if err != nil {
+		logrus.Warn("发送消息失败:", err)
+		return err
+	}
+	logrus.Debug("属性主题:", topic)
 	logrus.Debug("消息内容:", string(payload))
 	logrus.Debug("\n==>tp 发送消息成功:", string(newMsgJson))
 

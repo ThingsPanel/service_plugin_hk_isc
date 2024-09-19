@@ -1,5 +1,13 @@
 package services
 
+import (
+	"encoding/json"
+	"fmt"
+	"service_hk_isc/model"
+
+	"github.com/sirupsen/logrus"
+)
+
 /*
 获取监控点预览取流URLv2
 
@@ -14,3 +22,85 @@ URL：https://218.6.43.28:442/artemis/api/video/v2/cameras/previewURLs
 HTTP METHOD：POST
 安全验证：API网关安全验证
 */
+
+// CameraPreviewURLRequest 表示获取监控点预览取流URL的请求
+type CameraPreviewURLRequest struct {
+	CameraIndexCode string `json:"cameraIndexCode"`
+	StreamType      int    `json:"streamType,omitempty"`
+	Protocol        string `json:"protocol,omitempty"`
+	Transmode       int    `json:"transmode,omitempty"`
+	Expand          string `json:"expand,omitempty"`
+	Streamform      string `json:"streamform,omitempty"`
+}
+
+// CameraPreviewURLResponse 表示获取监控点预览取流URL的响应
+type CameraPreviewURLResponse struct {
+	Code string `json:"code"`
+	Msg  string `json:"msg"`
+	Data struct {
+		URL string `json:"url"`
+	} `json:"data"`
+}
+
+// GetCameraPreviewURL 实现获取监控点预览取流URL的 API 调用
+func GetCameraPreviewURL(request CameraPreviewURLRequest, config model.Voucher) (*CameraPreviewURLResponse, error) {
+	const ARTEMIS_PATH = "/artemis"
+	apiPath := ARTEMIS_PATH + "/api/video/v2/cameras/previewURLs"
+
+	body, err := json.Marshal(request)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling request: %v", err)
+	}
+
+	contentType := "application/json"
+	responseBody, err := DoPostStringArtemis(apiPath, body, contentType, config)
+	if err != nil {
+		return nil, fmt.Errorf("error making API request: %v", err)
+	}
+
+	var response CameraPreviewURLResponse
+	err = json.Unmarshal([]byte(responseBody), &response)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshaling response: %v", err)
+	}
+
+	return &response, nil
+}
+
+// GetCameraPreviewURLWrapper 获取监控点预览取流URL的包装函数
+func GetCameraPreviewURLWrapper(request CameraPreviewURLRequest, voucher model.Voucher) (string, error) {
+	response, err := GetCameraPreviewURL(request, voucher)
+	if err != nil {
+		return "", err
+	}
+	if response.Code != "0" {
+		return "", fmt.Errorf("API request failed: %s", response.Msg)
+	}
+	return response.Data.URL, nil
+}
+
+// ExampleGetCameraPreviewURL 展示如何使用 GetCameraPreviewURL 函数
+func ExampleGetCameraPreviewURL() {
+	request := CameraPreviewURLRequest{
+		CameraIndexCode: "0206ef351a9b42689c3e1de0e0827f5b",
+		Protocol:        "rtsp",
+		Expand:          "transcode=1&streamform=rtp",
+	}
+	config := model.Voucher{
+		Host:      "127.0.0.1:442",
+		AppKey:    "xxx",
+		AppSecret: "xxxxxx",
+	}
+
+	response, err := GetCameraPreviewURL(request, config)
+	if err != nil {
+		fmt.Printf("Error getting camera preview URL: %v\n", err)
+		return
+	}
+	logrus.Info("API Response: ", response)
+	if response.Code == "0" {
+		fmt.Printf("Preview URL: %s\n", response.Data.URL)
+	} else {
+		fmt.Printf("API request failed: %s - %s\n", response.Code, response.Msg)
+	}
+}
