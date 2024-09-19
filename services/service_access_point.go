@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	httpclient "service_hk_isc/http_client"
 	"service_hk_isc/model"
 	"service_hk_isc/mqtt"
@@ -182,20 +183,21 @@ func ParseVoucher(voucher string) (model.Voucher, error) {
 }
 
 // 更新服务点信息
-func UpdateServiceAccessPoint(serviceAccessID string) {
+func UpdateServiceAccessPoint(serviceAccessID string) error {
 	logrus.Info("更新服务接入点信息")
 	serviceAccessPoint, err := httpclient.GetServiceAccessPoint(serviceAccessID)
 	if err != nil {
 		logrus.Errorf("Failed to get ServiceAccessPoint %s: %v", serviceAccessID, err)
-		return
+		return err
+
 	}
 	if serviceAccessPoint == nil {
-		logrus.Errorf("Failed to get ServiceAccessPoint %s: %v", serviceAccessID, serviceAccessPoint)
-		return
+		logrus.Errorf("serviceAccessPoint is nil")
+		return errors.New("serviceAccessPoint is nil")
 	}
 	if serviceAccessPoint.Code != 200 {
-		logrus.Errorf("Failed to get ServiceAccessPoint %s: %v", serviceAccessID, serviceAccessPoint)
-		return
+		logrus.Errorf("serviceAccessPoint code is not 200")
+		return errors.New("serviceAccessPoint code is not 200")
 	}
 
 	mapMutex.Lock()
@@ -206,6 +208,8 @@ func UpdateServiceAccessPoint(serviceAccessID string) {
 		sap.Stop()
 		if err := sap.Start(); err != nil {
 			logrus.Errorf("Failed to start ServiceAccessPoint %s: %v", serviceAccessID, err)
+			return err
+
 		}
 	} else {
 		ctx, cancel := context.WithCancel(context.Background())
@@ -218,6 +222,9 @@ func UpdateServiceAccessPoint(serviceAccessID string) {
 		ServiceAccessPointMap[serviceAccessID] = sap
 		if err := sap.Start(); err != nil {
 			logrus.Errorf("Failed to start ServiceAccessPoint %s: %v", serviceAccessID, err)
+			return err
 		}
 	}
+
+	return nil
 }

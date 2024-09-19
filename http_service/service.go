@@ -134,7 +134,12 @@ func OnNotifyEvent(w http.ResponseWriter, r *http.Request) {
 			RspError(w, err)
 			return
 		}
-		return
+		err := services.UpdateServiceAccessPoint(notifyEventData.ServiceAccessID)
+		if err != nil {
+			logrus.Warn("更新服务接入点失败", err.Error())
+			RspError(w, err)
+			return
+		}
 	}
 	RspSuccess(w, nil)
 	// 处理事件通知
