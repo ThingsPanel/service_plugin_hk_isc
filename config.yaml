@@ -6,7 +6,8 @@ mqtt:
   broker: 47.92.253.145:1883 #mqtt服务端地址
   username: root
   password: root
-  telemetry_topic_to_publish: devices/attributes #发送遥测数据主题
+  telemetry_topic_to_publish: devices/telemetry #发送遥测数据主题
+  attributes_topic_to_publish: devices/attributes/ #发送属性数据主题
   topic_to_subscribe: service/hk_isc/#
   command_topic_to_subscribe: devices/command
   status_topic: device/status
