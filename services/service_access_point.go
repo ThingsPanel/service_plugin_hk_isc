@@ -141,7 +141,7 @@ func (sap *ServiceAccessPoint) DoSomething() {
 			Expand:          "transcode=1&streamform=rtp",
 		}
 		// 解析凭证
-		voucher, err := ParseVoucher(v.Voucher)
+		voucher, err := ParseVoucher(sap.Data.Voucher)
 		if err != nil {
 			logrus.Errorf("Error parsing voucher: %v", err)
 			continue
